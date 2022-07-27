@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/PokemonFactory.sol": {
+      "content": "//SPDX-License-Identifier: MIT\n//https://rinkeby.etherscan.io/address/0x53904D61D437853f887c94a725D245207048654C#code\npragma solidity ^0.8.7;\n\ncontract PokemonFactory {\n    struct Pokemon {\n        uint256 id;\n        string name;\n        string image;\n        Ability[] abilities;\n        string[] types;\n        string[] weaknesses;\n    }\n\n    struct Ability {\n        string name;\n        string description;\n    }\n\n    Pokemon[] public pokemons;\n    string[] private types;\n\n    mapping(uint256 => address) public pokemonToOwner;\n    mapping(address => Pokemon[]) pokedex; //ownerToPokemons\n    mapping(address => uint256) ownerPokemonCount;\n\n    mapping(string => string[]) private typesToWeaknesses;\n\n    event eventNewPokemon(Pokemon indexed eventNewPokemon);\n\n    modifier isPokemonValid(uint256 _id, string calldata _name) {\n        require(_id > 0, \"Debe seleccionar un id valido para el pokemon\");\n        require(bytes(_name).length > 2, \"El nombre debe ser mayor a 2 carateres\");\n        require(types.length > 0, \"Debe insertar tipos de pokemon\");\n        _;\n    }\n\n    function createPokemon(\n        uint256 _id,\n        string calldata _name,\n        string calldata _image,\n        string[] calldata _namesAbility,\n        string[] calldata _descripsAbility,\n        string[] memory _types_name\n    ) public isPokemonValid(_id, _name) {\n        uint256 index = pokemons.length;\n        pokemons.push();\n        pokemons[index].id = _id;\n        pokemons[index].name = _name;\n        pokemons[index].image = _image;\n\n        for (uint256 i = 0; i < _namesAbility.length; i++) {\n            pokemons[index].abilities.push(Ability(_namesAbility[i], _descripsAbility[i]));\n        }\n\n        pokemons[index].types = _types_name;\n\n        for (uint256 j = 0; j < _types_name.length; j++) {\n            string[] memory weaknesses = typesToWeaknesses[_types_name[j]];\n            pokemons[index].weaknesses = weaknesses;\n        }\n\n        pokedex[msg.sender].push(pokemons[index]);\n\n        emit eventNewPokemon(pokemons[index]);\n    }\n\n    function createTypesToWeaknesses(string calldata _type, string[] memory _weaknesses) public {\n        types.push(_type);\n        typesToWeaknesses[_type] = _weaknesses;\n    }\n\n    function getAllTypes() public view returns (string[] memory) {\n        return types;\n    }\n\n    function getWeaknessesByType(string memory _type) public view returns (string[] memory) {\n        return typesToWeaknesses[_type];\n    }\n\n    function getMyPokemons() public view returns (Pokemon[] memory) {\n        return pokedex[msg.sender];\n    }\n\n    function getAllPokemons() public view returns (Pokemon[] memory) {\n        return pokemons;\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
